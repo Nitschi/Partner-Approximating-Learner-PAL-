@@ -1,0 +1,13 @@
+name: pal
+
+dependencies:
+    - python=3.6
+    - numpy
+    - matplotlib
+    - scipy
+    - pip
+    - pip:
+        - keras-rl
+        - tensorflow
+        - keras
+        - gym
