@@ -377,16 +377,16 @@ class Simulation:
             outputs2 = list()
             for action in actions:
                 action_array = np.asarray([action])
-                outputs1.append(np.ndarray.item(self.controller1.rl_agent.critic.predict([action_array, input])))
+                outputs1.append(np.asscalar(self.controller1.rl_agent.critic.predict([action_array, input])))
 
-            print("C1: bei Input " + str(np.ndarray.item(input[0][0][0])) + " Value = " + str(max(outputs1)))
+            print("C1: bei Input " + str(np.asscalar(input[0][0][0])) + " Value = " + str(max(outputs1)))
             #print(outputs1)
 
             for action in actions:
                 action_array = np.asarray([action])
-                outputs2.append(np.ndarray.item(self.controller2.rl_agent.critic.predict([action_array, input])))
+                outputs2.append(np.asscalar(self.controller2.rl_agent.critic.predict([action_array, input])))
 
-            print("C2: bei Input " + str(np.ndarray.item(input[0][0][0])) + " Value = " + str(max(outputs2)))
+            print("C2: bei Input " + str(np.asscalar(input[0][0][0])) + " Value = " + str(max(outputs2)))
             #print(outputs2)
             print("-----------------------")
 
