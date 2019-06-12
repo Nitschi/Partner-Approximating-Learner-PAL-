@@ -213,25 +213,9 @@ class Simulation:
                 print("Folder data does not exist. Plot/run data not saved to disk")
             print(full_plot_file_name)
 
-        t = experience[:, 0]
-        x1 = experience[:, 1]
-        x2 = experience[:, 2]
-        u1 = experience[:, 3]
-        u2 = experience[:, 4]
-        u1_pred_by_c2 = experience[:, 5]  # Value that controller 2 predicted for the output of controller 1
-        u2_pred_by_c1 = experience[:, 6]
-        prediction_error_c1 = u2 - u2_pred_by_c1
-        prediction_error_c2 = u1 - u1_pred_by_c2
-
-        # evaluate
-        start_time_index = int(5 / dt)
-        total_error_from_5s = np.sum(np.absolute(prediction_error_c1[start_time_index:])) * dt
-        total_error_from_10s = np.sum(np.absolute(prediction_error_c1[(start_time_index*2):])) * dt
-        print("Total error u2_pred  (5s->) : ", total_error_from_5s)  # Error from 5 seconds onward summed up
-        print("Total error u2_pred (10s->) : ", total_error_from_10s)
         rewards = dict()
 
-        total_error_from_5s, total_error_from_10s, sum_r = self.draw_plot(experience, show_plot, dt)
+        self.draw_plot(experience, show_plot, dt)
 
         print(datetime.now())
 

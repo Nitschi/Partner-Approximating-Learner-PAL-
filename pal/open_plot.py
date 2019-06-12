@@ -62,12 +62,12 @@ def open_plot(filename="data/example-both_swing_up.npy"):
         steps_per_second = int(round(1/dt))
         if t[-1] >= 300:  # run was longer or equal 200s simulation time
             reward_0_300 = round(sum(r[0:300*steps_per_second]), 2)
-            print("r from 0->300:             {0}         per sec: {1}".format(reward_0_300,
-                                                                                 round(reward_0_300/100), 2))
+            # print("r from 0->300:             {0}         per sec: {1}".format(reward_0_300,
+            # round(reward_0_300/100), 2))
         if t[-1] > 200:  # run was longer than 200s simulation time
             reward_from200 = round(sum(r[200*steps_per_second:]), 2)
-            print("r from 200-> end:            {0}        per sec: {1}".format(reward_from200,
-                                                                                round(reward_from200/(t[-1] - 200), 2)))
+            # print("r from 200-> end:            {0}        per sec: {1}".format(reward_from200,
+            # round(reward_from200/(t[-1] - 200), 2)))
         if experience.shape[1] > 9:  # if individual rewards were saved as well
             r1, r2 = experience[:, 8], experience[:, 9]
             plt.plot(t, r1, color='black', linestyle=show_r1, linewidth=0.5, label='reward u1')
