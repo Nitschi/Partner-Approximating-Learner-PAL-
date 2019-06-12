@@ -651,8 +651,9 @@ def simulate_coop_ddpg(n=15000):
         rl_lr = round(rl_lr, 4)
         for rl_mem_span in rl_memory_spans:
             # sim = RealityLearnSimulation(env=env, rl_lr=.001, rl_memory_span=64)
-            print("----------------------Combination {0} of {1}----------------------".format(counter, num_combinations))
+            print("----------------------Run {0} of {1}----------------------".format(counter, num_combinations))
             counter += 1
+            print("This may take a while ...")
 
             sim = RealityLearnSimulationActionOther(env=env, rl_lr=rl_lr, rl_memory_span=rl_mem_span)  # u_other observable
             info = "rlsneg,rl_lr{0},rlmem{1},n{2}".format(rl_lr, rl_mem_span, n)

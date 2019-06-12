@@ -8,6 +8,6 @@ dependencies:
     - pip
     - pip:
         - keras-rl
-        - tensorflow
+        - tensorflow==1.11
         - keras
         - gym
