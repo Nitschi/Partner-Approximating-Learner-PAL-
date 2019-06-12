@@ -30,8 +30,8 @@ Usage:
 
 What it does (when executing main):
 
-- Simulates the training of two PALs
-- Plots the result
+- Simulates the training of two controllers
+- Plots the result (You can make more information like the control variable u visible in the plot window)
 - Prints some interesting information about the run
 - Saves the result into a file
 

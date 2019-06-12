@@ -363,21 +363,21 @@ class Simulation:
             plt.figure()
             plt.plot(t, x1, color='red', linestyle='solid', linewidth=0.5, label='x1')
             plt.plot(t, x2, color='green', linestyle='solid', linewidth=0.5, label='x2')
-            # plt.plot(t, prediction_error_c2, color='magenta', linestyle='None', linewidth=0.5, label='error_u1')
-            # plt.plot(t, prediction_error_c1, color='pink', linestyle='None', linewidth=0.5, label='error_u2')
+            plt.plot(t, prediction_error_c2, color='magenta', linestyle='None', linewidth=0.5, label='error_u1')
+            plt.plot(t, prediction_error_c1, color='pink', linestyle='None', linewidth=0.5, label='error_u2')
             plt.plot(t, u2, color='blue', linestyle='None', linewidth=0.5, label='u2')
-            # plt.plot(t, u1, color='cyan', linestyle='None', linewidth=1, label='u1')
+            plt.plot(t, u1, color='cyan', linestyle='None', linewidth=1, label='u1')
             plt.plot(t, u2_pred_by_c1, color='black', linestyle='None', linewidth=0.5, label='u2_pred_by_c1')
-            # plt.plot(t, u1_pred_by_c2, color='orange', linestyle='None', linewidth=0.5, label='u1_pred_by_c2')
+            plt.plot(t, u1_pred_by_c2, color='orange', linestyle='None', linewidth=0.5, label='u1_pred_by_c2')
 
-            # if experience.shape[1] > 7:  # if summed reward was saved as well
-            # plt.plot(t, r, color='magenta', linestyle='solid', linewidth=0.5, label='reward summed')
-            # if experience.shape[1] > 9:
-            # plt.plot(t, r1, color='black', linestyle='None', linewidth=0.5, label='reward u1')
-            # plt.plot(t, r2, color='orange', linestyle='None', linewidth=0.5, label='reward u2')
+            if experience.shape[1] > 7:  # if summed reward was saved as well
+              plt.plot(t, r, color='magenta', linestyle='solid', linewidth=0.5, label='reward summed')
+            if experience.shape[1] > 9:
+              plt.plot(t, r1, color='black', linestyle='None', linewidth=0.5, label='reward u1')
+              plt.plot(t, r2, color='orange', linestyle='None', linewidth=0.5, label='reward u2')
 
-            # if experience.shape[1] > 10:
-            # plt.plot(t, self.mse_c1, color='green', linestyle='None', linewidth=0.5, label='mse_c1')
+            if experience.shape[1] > 10:
+              plt.plot(t, self.mse_c1, color='green', linestyle='None', linewidth=0.5, label='mse_c1')
 
             plt.ylim((-5, 5))
             plt.xlabel('time')

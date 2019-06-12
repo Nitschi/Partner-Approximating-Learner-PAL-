@@ -18,13 +18,13 @@ def open_plot(filename="data/example-both_swing_up.npy"):
 
     show_x1 = 'solid'
     show_x2 = 'solid'
-    show_u1 = 'solid'
+    show_u1 = 'None'
     show_u2 = 'None'
-    show_u1_pred = 'solid'
+    show_u1_pred = 'None'
     show_u2_pred = 'None'
-    show_error1 = 'solid'
-    show_error2 = 'solid'
-    show_r_sum = 'None'
+    show_error1 = 'None'
+    show_error2 = 'None'
+    show_r_sum = 'solid'
     show_r1 = 'None'
     show_r2 = 'None'
     show_mse_c1 = 'None'
@@ -47,15 +47,15 @@ def open_plot(filename="data/example-both_swing_up.npy"):
     plt.plot(t, x1, color='red', linestyle=show_x1, linewidth=1, label='Winkel $\phi$')
 
 
-    #plt.plot(t, prediction_error_c2, color='magenta', linestyle=show_error1, linewidth=1.5, label='error_u1')
-    #plt.plot(t, prediction_error_c1, color='green', linestyle=show_error2, linewidth=4, label='$Prädiktionsfehler e_2$')
-    #plt.plot(t, u2, color='blue', linestyle=show_u2, linewidth=2, label='$u_2$')
+    plt.plot(t, prediction_error_c2, color='magenta', linestyle=show_error1, linewidth=1.5, label='error_u1')
+    plt.plot(t, prediction_error_c1, color='green', linestyle=show_error2, linewidth=4, label='$Prädiktionsfehler e_2$')
+    plt.plot(t, u2, color='blue', linestyle=show_u2, linewidth=2, label='$u_2$')
     plt.plot(t, u1, color='cyan', linestyle=show_u1, linewidth=1, label='u1')
-    #plt.plot(t, u2_pred_by_c1, color='black', linestyle=show_u2_pred, linewidth=2, label='$\hat{u}_P$')
+    plt.plot(t, u2_pred_by_c1, color='black', linestyle=show_u2_pred, linewidth=2, label='$\hat{u}_P$')
     plt.plot(t, u1_pred_by_c2, color='orange', linestyle=show_u1_pred, linewidth=0.5, label='u1_pred_by_c2')
     if experience.shape[1] > 7:  # if summed reward was saved as well
         r = experience[:, 7]
-        #plt.plot(t, r, color='magenta', linestyle=show_r_sum, linewidth=1, label='reward summed')
+        plt.plot(t, r, color='magenta', linestyle=show_r_sum, linewidth=1, label='reward summed')
         sum_r = round(sum(r), 2)  # cumulative reward
         print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r/t[-1], 2)))
         dt = t[2] - t[1]
@@ -70,11 +70,11 @@ def open_plot(filename="data/example-both_swing_up.npy"):
                                                                                 round(reward_from200/(t[-1] - 200), 2)))
         if experience.shape[1] > 9:  # if individual rewards were saved as well
             r1, r2 = experience[:, 8], experience[:, 9]
-            #plt.plot(t, r1, color='black', linestyle=show_r1, linewidth=0.5, label='reward u1')
-            #plt.plot(t, r2, color='orange', linestyle=show_r2, linewidth=0.5, label='reward u2')
+            plt.plot(t, r1, color='black', linestyle=show_r1, linewidth=0.5, label='reward u1')
+            plt.plot(t, r2, color='orange', linestyle=show_r2, linewidth=0.5, label='reward u2')
     if experience.shape[1] > 10:
         mse_c1 = experience[:, 10]
-        #plt.plot(t, mse_c1, color='orange', linestyle=show_mse_c1, linewidth=4, label='$RMSE on Ident.-Buffer e_1$')
+        plt.plot(t, mse_c1, color='orange', linestyle=show_mse_c1, linewidth=4, label='$RMSE on Ident.-Buffer e_1$')
 
     plt.ylim((-ylim, ylim))
     plt.xlim(xlim)
