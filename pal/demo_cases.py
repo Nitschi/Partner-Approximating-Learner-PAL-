@@ -101,8 +101,8 @@ def demo_both_learn_swing_up_no_ident(n=300, runs=1):
                             calc_error_on_learning_stack=True)
 
 
-def demo_reality_learner():
-    simulate_coop_ddpg()
+def demo_reality_learner(n=15000):
+    simulate_coop_ddpg(n=n)
 
 
 def rosenbrock_scaled(x1, x2):

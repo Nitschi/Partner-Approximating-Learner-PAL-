@@ -15,7 +15,7 @@ from rl.random import OrnsteinUhlenbeckProcess
 from collections import deque
 
 from math import sin, cos, tanh
-from pal.environments import PendulumOpenAI
+from pal.environments import CoopPendulum
 
 
 class Controller(ABC):
@@ -175,7 +175,7 @@ class PartnerApproximatingLearner(Controller):
 
     def __init__(self, first_player: bool, stop_ident_time=1e9, do_rl=False, learning_rate=0.01, activation_fcn='relu',
                  learn_time_delta=0.2, rl_time_delta=0.1, epochs=2, fit_batch_size=20, learn_stack=LearningStack(),
-                 real_env=PendulumOpenAI(), rl_memory_span=50, wolf=0., win_lr_reduction=1, wolf_stop_rl=False):
+                 real_env=CoopPendulum(), rl_memory_span=50, wolf=0., win_lr_reduction=1, wolf_stop_rl=False):
         """ Sets various parameters, configures the ident, actor and critic NN and compiles the agent"""
         super(PartnerApproximatingLearner, self).__init__(first_player)  # Call to __init__ of parent class Controller
         self.learn_stack = learn_stack  # Controller specific LearningStack in which to save the experiences

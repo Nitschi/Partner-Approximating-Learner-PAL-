@@ -129,7 +129,7 @@ class NegotiateCoopPendulum(CoopPendulum):
         return - (self.angle_normalize(th) - np.pi/4) ** 2 - .1 * thdot ** 2 - .01 * (u ** 2)
 
 
-class PendulumOpenAI(Env):
+class PendulumOpenAIdepricated(Env):
     """ An environment that assumes the other pal as being fixed that a pal can act on """
     def __init__(self, ctrl_other=None):
         ENV_NAME = 'Pendulum-v0'

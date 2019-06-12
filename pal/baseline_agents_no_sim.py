@@ -20,6 +20,7 @@ from rl.util import clone_optimizer
 from rl.callbacks import CallbackList, TrainEpisodeLogger, TrainIntervalLogger, Visualizer
 
 from pal.environments import CoopPendulum
+from pal.open_plot import open_plot
 
 
 class CoopDDPG(Agent):  # Two Agents, who can not measure the output of the other (Based on Keras-rl agent impl.)
@@ -654,9 +655,10 @@ def simulate_coop_ddpg(n=15000):
             counter += 1
 
             sim = RealityLearnSimulationActionOther(env=env, rl_lr=rl_lr, rl_memory_span=rl_mem_span)  # u_other observable
-            info = "rlsnegNOW,rl_lr{0},rlmem{1},n{2}".format(rl_lr, rl_mem_span, n)
+            info = "rlsneg,rl_lr{0},rlmem{1},n{2}".format(rl_lr, rl_mem_span, n)
             print(info)
             experience_for_plotting = sim.simulate(n)
+
 
             plot_file_name = info
             # Convert experience_for_plotting to a numpy array
@@ -668,16 +670,22 @@ def simulate_coop_ddpg(n=15000):
 
             if plot_file_name is not None:
                 full_plot_file_name = plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S")
-                np.save("../data/" + full_plot_file_name, experience)
-                sim.coop_agent.agent1.critic.save("../models/" + "critic1-" + full_plot_file_name)
-                sim.coop_agent.agent1.actor.save("../models/" + "actor1-" + full_plot_file_name)
-                sim.coop_agent.agent2.critic.save("../models/" + "critic2-" + full_plot_file_name)
-                sim.coop_agent.agent2.actor.save("../models/" + "actor2-" + full_plot_file_name)
-
+                try:
+                    np.save("data/" + full_plot_file_name, experience)
+                    open_plot("data/" + full_plot_file_name+".npy")
+                except OSError:
+                    print("Folder data does not exist. Plot/run data not saved to disk")
+                try:
+                    sim.coop_agent.agent1.critic.save("data/models/" + "critic1-" + full_plot_file_name)
+                    sim.coop_agent.agent1.actor.save("data/models/" + "actor1-" + full_plot_file_name)
+                    sim.coop_agent.agent2.critic.save("data/models/" + "critic2-" + full_plot_file_name)
+                    sim.coop_agent.agent2.actor.save("data/models/" + "actor2-" + full_plot_file_name)
+                except OSError:
+                    print("Folder data/models does not exist. Actor and critic models not saved")
             t = experience[:, 0]
             r = experience[:, 7]
             sum_r = round(sum(r), 2)
-            print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r / t[-1], 2)))
+            #print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r / t[-1], 2)))
             dt = t[2] - t[1]
             steps_per_second = int(round(1 / dt))
             if round(t[-1], 5) >= 10000:  # run was longer or equal 200s*m simulation time

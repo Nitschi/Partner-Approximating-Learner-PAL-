@@ -103,79 +103,22 @@ class Simulation:
 
         if took_too_long:
             if plot_file_name is not None:
-                np.save("data/" + plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S") + "-took_too_long", experience)
+                try:
+                    np.save("data/" + plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S") + "-took_too_long", experience)
+                except OSError:
+                    print("Folder data does not exist. Plot/run data not saved to disk")
                 print(plot_file_name + " took too long")
             return timedelta(hours=1), 1e6, 1e6, -1e6  # set errors very high if episode was too long
 
         if plot_file_name is not None:
             full_plot_file_name = plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S")
-            np.save("data/" + full_plot_file_name, experience)
+            try:
+                np.save("data/" + full_plot_file_name, experience)
+            except OSError:
+                print("Folder data does not exist. Plot/run data not saved to disk")
             print(full_plot_file_name)
 
-        t = experience[:, 0]
-        x1 = experience[:, 1]
-        x2 = experience[:, 2]
-        u1 = experience[:, 3]
-        u2 = experience[:, 4]
-        u1_pred_by_c2 = experience[:, 5]  # Value that pal 2 predicted for the output of pal 1
-        u2_pred_by_c1 = experience[:, 6]
-        prediction_error_c1 = u2 - u2_pred_by_c1
-        prediction_error_c2 = u1 - u1_pred_by_c2
-
-        # evaluate
-        start_time_index = int(5 / dt)
-        total_error_from_5s = np.sum(np.absolute(prediction_error_c1[start_time_index:])) * dt
-        total_error_from_10s = np.sum(np.absolute(prediction_error_c1[(start_time_index*2):])) * dt
-        print("Total error u2_pred  (5s->) : ", total_error_from_5s)  # Error from 5 seconds onward summed up
-        print("Total error u2_pred (10s->) : ", total_error_from_10s)
-
-        if experience.shape[1] > 7:  # if summed reward was saved as well
-            r = experience[:, 7]
-            sum_r = round(sum(r), 2)
-            print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r / t[-1], 2)))
-            dt = t[2] - t[1]
-            steps_per_second = int(round(1 / dt))
-            if round(t[-1], 5) >= 200:  # run was longer or equal 200s simulation time
-                reward_100_200 = round(sum(r[100 * steps_per_second:200 * steps_per_second]), 2)
-                print("r from 100->200:             {0}         per sec: {1}".format(reward_100_200,
-                                                                                     round(reward_100_200 / 100),
-                                                                                     2))
-            if round(t[-1], 5) > 200:  # run was longer than 200s simulation time
-                reward_from200 = round(sum(r[200 * steps_per_second:]), 2)
-                print("r from 200-> end:            {0}        per sec: {1}".format(reward_from200, round(
-                    reward_from200 / (t[-1] - 200), 2)))
-            if experience.shape[1] > 9:  # if individual rewards were saved as well
-                r1, r2 = experience[:, 8], experience[:, 9]
-                if experience.shape[1] > 10:
-                    self.mse_c1 = experience[:, 10]
-
-        # plot
-        if show_plot:  # comment in lines to plot more information (see also in evaluate2 if nothing changes)
-            plt.figure()
-            plt.plot(t, x1, color='red', linestyle='solid', linewidth=0.5, label='x1')
-            plt.plot(t, x2, color='green', linestyle='solid', linewidth=0.5, label='x2')
-            # plt.plot(t, prediction_error_c2, color='magenta', linestyle='None', linewidth=0.5, label='error_u1')
-            # plt.plot(t, prediction_error_c1, color='pink', linestyle='None', linewidth=0.5, label='error_u2')
-            plt.plot(t, u2, color='blue', linestyle='None', linewidth=0.5, label='u2')
-            # plt.plot(t, u1, color='cyan', linestyle='None', linewidth=1, label='u1')
-            plt.plot(t, u2_pred_by_c1, color='black', linestyle='None', linewidth=0.5, label='u2_pred_by_c1')
-            # plt.plot(t, u1_pred_by_c2, color='orange', linestyle='None', linewidth=0.5, label='u1_pred_by_c2')
-
-            #if experience.shape[1] > 7:  # if summed reward was saved as well
-                #plt.plot(t, r, color='magenta', linestyle='solid', linewidth=0.5, label='reward summed')
-                #if experience.shape[1] > 9:
-                    #plt.plot(t, r1, color='black', linestyle='None', linewidth=0.5, label='reward u1')
-                    #plt.plot(t, r2, color='orange', linestyle='None', linewidth=0.5, label='reward u2')
-
-                    #if experience.shape[1] > 10:
-                        #plt.plot(t, self.mse_c1, color='green', linestyle='None', linewidth=0.5, label='mse_c1')
-
-            plt.ylim((-5, 5))
-            plt.xlabel('time')
-            plt.ylabel('state')
-            plt.legend()
-            plt.tight_layout()
-
+        total_error_from_5s, total_error_from_10s, sum_r = self.draw_plot(experience, show_plot, dt)
         # plot generalization
         # plot the outputs of u2_pred_by_c1 for different combinations of x1 and x2 values to see if they correspond to
         # the real u2
@@ -230,11 +173,9 @@ class Simulation:
 
             print(datetime.now())
 
-        if show_plot or plot_generalization:
-            plt.show()  # If multiple runs should be performed before plotting, please call show_plot at the end of main
         return time_taken, total_error_from_5s, total_error_from_10s, sum_r
 
-    def evaluate2(self, duration, time_out_seconds=1e6, plot_file_name=None, progress=False, calc_error_on_learning_stack=False):
+    def evaluate2(self, duration, time_out_seconds=1e6, plot_file_name=None, progress=False, calc_error_on_learning_stack=False, show_plot=True):
         """ Starts a simulation to print metrics and plot performance """
 
         timer = datetime.now()  # to time how long the simulation runs
@@ -257,13 +198,19 @@ class Simulation:
             rewards["reward_from60"] = -1e6
             rewards["reward_from200"] = -1e6
             if plot_file_name is not None:
-                np.save("data/" + plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S") + "-took_too_long", experience)
+                try:
+                    np.save("data/" + plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S") + "-took_too_long", experience)
+                except OSError:
+                    print("Folder data does not exist. Plot/run data not saved to disk")
                 print(plot_file_name + " took too long")
             return timedelta(hours=1), rewards  # set errors very high if episode was too long
 
         if plot_file_name is not None:
             full_plot_file_name = plot_file_name + datetime.now().strftime("-%m-%d-%H-%M-%S")
-            np.save("data/" + full_plot_file_name, experience)
+            try:
+                np.save("data/" + full_plot_file_name, experience)
+            except OSError:
+                print("Folder data does not exist. Plot/run data not saved to disk")
             print(full_plot_file_name)
 
         t = experience[:, 0]
@@ -284,32 +231,9 @@ class Simulation:
         print("Total error u2_pred (10s->) : ", total_error_from_10s)
         rewards = dict()
 
-        if experience.shape[1] > 7:  # if summed reward was saved as well
-            r = experience[:, 7]
-            sum_r = round(sum(r), 2)
-            rewards["sum_r"] = sum_r
-            print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r / t[-1], 2)))
-            dt = t[2] - t[1]
-            steps_per_second = int(round(1 / dt))
-            if round(t[-1], 5) >= 200:  # run was longer or equal 200s simulation time
-                reward_100_200 = round(sum(r[100 * steps_per_second:200 * steps_per_second]), 2)
-                print("r from 100->200:             {0}         per sec: {1}".format(reward_100_200,
-                                                                                     round(reward_100_200 / 100),
-                                                                                     2))
-            if round(t[-1], 5) > 200:  # run was longer than 200s simulation time
-                reward_from200 = round(sum(r[200 * steps_per_second:]), 2)
-                print("r from 200-> end:            {0}        per sec: {1}".format(reward_from200, round(
-                    reward_from200 / (t[-1] - 200), 2)))
-                rewards["reward_from200"] = reward_from200
-            if experience.shape[1] > 9:  # if individual rewards were saved as well
-                r1, r2 = experience[:, 8], experience[:, 9]
-            if t[-1] > 60:
-                reward_from60 = round(sum(r[60 * steps_per_second:]), 2)
-                rewards["reward_from60"] = reward_from60
-                print("r from 60-> end:            {0}        per sec: {1}".format(reward_from60, round(
-                    reward_from60 / (t[-1] - 60), 2)))
+        total_error_from_5s, total_error_from_10s, sum_r = self.draw_plot(experience, show_plot, dt)
 
-            print(datetime.now())
+        print(datetime.now())
 
         return time_taken, rewards
 
@@ -325,10 +249,14 @@ class Simulation:
             # compile model changing params, because keras-rl specific optimizer and loss cant be loaded with load_model
             self.controller1.rl_agent.critic.compile(loss='mean_squared_error', optimizer="sgd")
             self.controller2.rl_agent.critic.compile(loss='mean_squared_error', optimizer="sgd")
-            self.controller1.rl_agent.critic.save("models/" + "critic1-" + full_plot_file_name)
-            self.controller1.rl_agent.actor.save("models/" + "actor1-" + full_plot_file_name)
-            self.controller2.rl_agent.critic.save("models/" + "critic2-" + full_plot_file_name)
-            self.controller2.rl_agent.actor.save("models/" + "actor2-" + full_plot_file_name)
+            try:
+                self.controller1.rl_agent.critic.save("data/models/" + "critic1-" + full_plot_file_name)
+                self.controller1.rl_agent.actor.save("data/models/" + "actor1-" + full_plot_file_name)
+                self.controller2.rl_agent.critic.save("data/models/" + "critic2-" + full_plot_file_name)
+                self.controller2.rl_agent.actor.save("data/models/" + "actor2-" + full_plot_file_name)
+            except OSError:
+                print("Folder data/models does not exist. Actor and critic models not saved")
+
 
         if plot_critics:
             from matplotlib.ticker import LinearLocator, FormatStrFormatter
@@ -391,3 +319,70 @@ class Simulation:
             print("-----------------------")
 
         return time_taken, rewards
+
+    def draw_plot(self, experience, show_plot, dt):
+        t = experience[:, 0]
+        x1 = experience[:, 1]
+        x2 = experience[:, 2]
+        u1 = experience[:, 3]
+        u2 = experience[:, 4]
+        u1_pred_by_c2 = experience[:, 5]  # Value that pal 2 predicted for the output of pal 1
+        u2_pred_by_c1 = experience[:, 6]
+        prediction_error_c1 = u2 - u2_pred_by_c1
+        prediction_error_c2 = u1 - u1_pred_by_c2
+
+        # evaluate
+        start_time_index = int(5 / dt)
+        total_error_from_5s = np.sum(np.absolute(prediction_error_c1[start_time_index:])) * dt
+        total_error_from_10s = np.sum(np.absolute(prediction_error_c1[(start_time_index * 2):])) * dt
+        print("Total error u2_pred  (5s->) : ", total_error_from_5s)  # Error from 5 seconds onward summed up
+        print("Total error u2_pred (10s->) : ", total_error_from_10s)
+        sum_r = 0
+        if experience.shape[1] > 7:  # if summed reward was saved as well
+            r = experience[:, 7]
+            sum_r = round(sum(r), 2)
+            print("Total reward:                {0}         per sec: {1}".format(sum_r, round(sum_r / t[-1], 2)))
+            dt = t[2] - t[1]
+            steps_per_second = int(round(1 / dt))
+            if round(t[-1], 5) >= 200:  # run was longer or equal 200s simulation time
+                reward_100_200 = round(sum(r[100 * steps_per_second:200 * steps_per_second]), 2)
+                print("r from 100->200:             {0}         per sec: {1}".format(reward_100_200,
+                                                                                     round(reward_100_200 / 100),
+                                                                                     2))
+            if round(t[-1], 5) > 200:  # run was longer than 200s simulation time
+                reward_from200 = round(sum(r[200 * steps_per_second:]), 2)
+                print("r from 200-> end:            {0}        per sec: {1}".format(reward_from200, round(
+                    reward_from200 / (t[-1] - 200), 2)))
+            if experience.shape[1] > 9:  # if individual rewards were saved as well
+                r1, r2 = experience[:, 8], experience[:, 9]
+                if experience.shape[1] > 10:
+                    self.mse_c1 = experience[:, 10]
+
+        # plot
+        if show_plot:  # comment in lines to plot more information (see also in evaluate2 if nothing changes)
+            plt.figure()
+            plt.plot(t, x1, color='red', linestyle='solid', linewidth=0.5, label='x1')
+            plt.plot(t, x2, color='green', linestyle='solid', linewidth=0.5, label='x2')
+            # plt.plot(t, prediction_error_c2, color='magenta', linestyle='None', linewidth=0.5, label='error_u1')
+            # plt.plot(t, prediction_error_c1, color='pink', linestyle='None', linewidth=0.5, label='error_u2')
+            plt.plot(t, u2, color='blue', linestyle='None', linewidth=0.5, label='u2')
+            # plt.plot(t, u1, color='cyan', linestyle='None', linewidth=1, label='u1')
+            plt.plot(t, u2_pred_by_c1, color='black', linestyle='None', linewidth=0.5, label='u2_pred_by_c1')
+            # plt.plot(t, u1_pred_by_c2, color='orange', linestyle='None', linewidth=0.5, label='u1_pred_by_c2')
+
+            # if experience.shape[1] > 7:  # if summed reward was saved as well
+            # plt.plot(t, r, color='magenta', linestyle='solid', linewidth=0.5, label='reward summed')
+            # if experience.shape[1] > 9:
+            # plt.plot(t, r1, color='black', linestyle='None', linewidth=0.5, label='reward u1')
+            # plt.plot(t, r2, color='orange', linestyle='None', linewidth=0.5, label='reward u2')
+
+            # if experience.shape[1] > 10:
+            # plt.plot(t, self.mse_c1, color='green', linestyle='None', linewidth=0.5, label='mse_c1')
+
+            plt.ylim((-5, 5))
+            plt.xlabel('time')
+            plt.ylabel('state')
+            plt.legend()
+            plt.tight_layout()
+
+        return total_error_from_5s, total_error_from_10s, sum_r
