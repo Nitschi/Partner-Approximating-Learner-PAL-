@@ -29,27 +29,27 @@ class Controller(ABC):
     def new_exp(self, exp):
         pass
 
-    def get_other_pred(self, t, x):  # regular pal knows nothing -> return 0
+    def get_other_pred(self, t, x):  # regular controller knows nothing -> return 0
         return 0.
 
 
 class StaticController(Controller):
-    """ A pal that has a static nonlinear behavior """
+    """ A controller that has a static nonlinear behavior """
     def u(self, t, x):
         assert len(x) > 1
         x1 = np.ndarray.item(x[0])
         x2 = np.ndarray.item(x[1])
-        ret = sin(x1) - tanh(x2)  # Rule, how the pal computes the output
+        ret = sin(x1) - tanh(x2)  # Rule, how the controller computes the output
         return ret
 
 
 class StaticControllerV2(Controller):
-    """ A pal that has a static nonlinear behavior (u not 0 at x1 = 0) """
+    """ A controller that has a static nonlinear behavior (u not 0 at x1 = 0) """
     def u(self, t, x):
         assert len(x) > 1
         x1 = np.ndarray.item(x[0])
         x2 = np.ndarray.item(x[1])
-        ret = cos(x1) - tanh(x2)  # Rule, how the pal computes the output
+        ret = cos(x1) - tanh(x2)  # Rule, how the controller computes the output
         return ret
 
 
@@ -68,13 +68,13 @@ class StaticControllerCustomFunction(Controller):
 
 
 class StaticZeroController(Controller):
-    """ A pal that always returns 0 """
+    """ A controller that always returns 0 """
     def u(self, t, x):
         return 0
 
 
 class StaticNNController(Controller):
-    """ A pal with a static NN as a control law """
+    """ A controller with a static NN as a control law """
     def __init__(self, first_player, neural_net):
         super(StaticNNController, self).__init__(first_player)
         self.neural_net = neural_net
@@ -99,7 +99,7 @@ class ChangingController(Controller):
         x1 = np.ndarray.item(x[0])
         x2 = np.ndarray.item(x[1])
         if t < self.change_time:
-            ret = sin(x1) - tanh(x2)  # Rule, how the pal computes the output before changing
+            ret = sin(x1) - tanh(x2)  # Rule, how the controller computes the output before changing
         else:
             ret = - 0.2 * x1 + 0.8 * x2  # Rule, ... after changing
         return ret
@@ -171,7 +171,7 @@ class LearningStack:
 
 
 class PartnerApproximatingLearner(Controller):
-    """ A pal that learns how the other pal behaves and adapts to that behavior """
+    """ A controller that learns how the other agent behaves and adapts to that behavior """
 
     def __init__(self, first_player: bool, stop_ident_time=1e9, do_rl=False, learning_rate=0.01, activation_fcn='relu',
                  learn_time_delta=0.2, rl_time_delta=0.1, epochs=2, fit_batch_size=20, learn_stack=LearningStack(),
@@ -265,7 +265,7 @@ class PartnerApproximatingLearner(Controller):
             self.rl_actor_ctrl = StaticNNController(first_player=self.first_player, neural_net=rl_actor)
 
     def ident_other(self):
-        """ Updates Identification of the other pal """
+        """ Updates Identification of the partner """
         batch = self.learn_stack.pick_random()  # get a batch from the LearningStack
         batch_t, batch_x, batch_u = zip(*batch)
         batch_u1, batch_u2 = zip(*batch_u)
@@ -278,7 +278,7 @@ class PartnerApproximatingLearner(Controller):
                                        shuffle=True, validation_split=0.)
 
     def u(self, t, x) -> float:
-        """ Calculates the control variable u of the learning pal (only for the "real" environment)
+        """ Calculates the control variable u of the learning controller (only for the "real" environment)
             The action inside the internal simulation is calculated by the actor NN and clipped by the env """
         if self.do_rl:
             u_self = self.rl_actor_ctrl.u(t, x)
@@ -288,7 +288,7 @@ class PartnerApproximatingLearner(Controller):
         return u_self
 
     def get_other_pred(self, t, x):
-        """ Returns the expected output of the other pal for the given input """
+        """ Returns the expected output of the other controller for the given input """
         u_other_pred = self.ident_ctrl.u(t, x)
         return u_other_pred
 
@@ -336,7 +336,7 @@ class PartnerApproximatingLearner(Controller):
                 K.set_value(self.ident_ctrl.neural_net.optimizer.lr, self.loosing_lr/self.win_lr_reduction)
             else:
                 K.set_value(self.ident_ctrl.neural_net.optimizer.lr, self.loosing_lr)
-            self.ident_other()  # train my model of the other pal on data from my LearningStack
+            self.ident_other()  # train my model of the other controller on data from my LearningStack
             self.last_ident_time = t_now
 
     def improve_policy(self):

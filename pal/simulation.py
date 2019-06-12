@@ -218,7 +218,7 @@ class Simulation:
         x2 = experience[:, 2]
         u1 = experience[:, 3]
         u2 = experience[:, 4]
-        u1_pred_by_c2 = experience[:, 5]  # Value that pal 2 predicted for the output of pal 1
+        u1_pred_by_c2 = experience[:, 5]  # Value that controller 2 predicted for the output of controller 1
         u2_pred_by_c1 = experience[:, 6]
         prediction_error_c1 = u2 - u2_pred_by_c1
         prediction_error_c2 = u1 - u1_pred_by_c2
@@ -326,7 +326,7 @@ class Simulation:
         x2 = experience[:, 2]
         u1 = experience[:, 3]
         u2 = experience[:, 4]
-        u1_pred_by_c2 = experience[:, 5]  # Value that pal 2 predicted for the output of pal 1
+        u1_pred_by_c2 = experience[:, 5]  # Value that controller 2 predicted for the output of controller 1
         u2_pred_by_c1 = experience[:, 6]
         prediction_error_c1 = u2 - u2_pred_by_c1
         prediction_error_c2 = u1 - u1_pred_by_c2

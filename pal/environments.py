@@ -6,7 +6,7 @@ from gym import make as gym_make
 
 
 class CoopPendulum(Env):
-    """ An environment that assumes the other pal as being fixed that a pal can act on """
+    """ An environment that assumes the other controller as being fixed that a controller can act on """
     def __init__(self, ctrl_other=None, max_torque=None, action_space_u1=None, action_space_u2=None, perfident = False):
         ENV_NAME = 'Pendulum-v0'
 
@@ -27,7 +27,7 @@ class CoopPendulum(Env):
 
     def step(self, u):
         """ Performs one step.
-        Case1: "Real" System: u is a tuple of u1 and u2. -> reward for the virtual pal that both
+        Case1: "Real" System: u is a tuple of u1 and u2. -> reward for the virtual controller that both
         controllers form together
         Case2: Simulated System: u is only the one value a single agent calculated and influence of u_other is
         calculated with self.other_controller.u which is normally set to the ident_controller -> Only reward for the
@@ -130,7 +130,7 @@ class NegotiateCoopPendulum(CoopPendulum):
 
 
 class PendulumOpenAIdepricated(Env):
-    """ An environment that assumes the other pal as being fixed that a pal can act on """
+    """ An environment that assumes the other controller as being fixed that a controller can act on """
     def __init__(self, ctrl_other=None):
         ENV_NAME = 'Pendulum-v0'
 
